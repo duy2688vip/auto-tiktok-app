@@ -9,7 +9,8 @@ st.write("Tự động tạo ảnh Model AI & Build Video TikTok từ ảnh gố
 
 # --- CẤU HÌNH SIDEBAR ---
 st.sidebar.title("⚙️ Cấu hình mẫu Cố Định")
-api_key = st.sidebar.text_input("Mã API Gemini:", type="password", help="Lấy API Key miễn phí từ Google AI Studio")
+raw_api_key = st.sidebar.text_input("Mã API Gemini:", type="password", help="Lấy API Key từ Google AI Studio (bắt đầu bằng AIzaSy...)")
+api_key = raw_api_key.strip() if raw_api_key else ""
 
 prompt_analysis = st.sidebar.text_area(
     "1. Khung Nhắc Mẫu Tạo Ảnh AI:",
@@ -35,10 +36,11 @@ if uploaded_file and api_key:
     if st.button("🚀 XUẤT VIDEO TỰ ĐỘNG"):
         try:
             genai.configure(api_key=api_key)
-            model = genai.GenerativeModel('gemini-3.8-flash')
             
-            with st.spinner("⚡ Đang tối ưu ảnh & gửi AI xử lý siêu tốc..."):
-                # TỐI ƯU TỐC ĐỘ: Thu nhỏ ảnh về tối đa 1024px để gửi cực nhanh
+            # Sử dụng phiên bản Flash chuẩn định dạng
+            model = genai.GenerativeModel('gemini-1.5-flash')
+            
+            with st.spinner("⚡ Đang tối ưu ảnh & gửi AI xử lý..."):
                 optimized_img = image.copy()
                 optimized_img.thumbnail((1024, 1024))
                 
@@ -53,4 +55,4 @@ if uploaded_file and api_key:
         except Exception as e:
             st.error(f"Có lỗi xảy ra: {e}")
 elif not api_key:
-    st.warning("⚠️ Vui lòng nhập Gemini API Key ở thanh bên trái trước khi bắt đầu!")
+    st.warning("⚠️ Vui lòng nhập Gemini API Key (bắt đầu bằng AIzaSy...) ở thanh bên trái!")
