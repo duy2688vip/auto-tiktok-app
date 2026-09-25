@@ -30,12 +30,12 @@ uploaded_file = st.file_uploader("Tải ảnh sản phẩm (Áo/Quần/Váy)..."
 
 if uploaded_file and api_key:
     image = Image.open(uploaded_file)
-    st.image(image, caption="Ảnh áo gốc", use_column_width=True)
+    # Đã cập nhật tham số chuẩn use_container_width
+    st.image(image, caption="Ảnh áo gốc", use_container_width=True)
     
     if st.button("🚀 XUẤT VIDEO TỰ ĐỘNG"):
         try:
             genai.configure(api_key=api_key)
-            # Sử dụng model gemini-1.5-flash mới nhất
             model = genai.GenerativeModel('gemini-1.5-flash')
             
             with st.spinner("⏳ Hệ thống đang tự động xử lý từ A - Z..."):
