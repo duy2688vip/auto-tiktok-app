@@ -2,67 +2,49 @@ import streamlit as st
 import google.generativeai as genai
 from PIL import Image
 
-st.set_page_config(page_title="Auto TikTok Fashion Video", page_icon="👕", layout="centered")
+st.set_page_config(page_title="Video thời trang TikTok tự động", page_icon="👕", layout="centered")
 
-st.title("👕 App Auto TikTok Affiliate Fashion")
-st.write("Tự động tạo ảnh Model AI & Dựng Video TikTok từ ảnh áo gốc!")
+st.title("👕 Ứng dụng tự động tiếp thị liên kết TikTok thời trang")
+st.write("Tự động tạo ảnh Model AI & Build Video TikTok từ ảnh gốc!")
 
-# --- CẤU HÌNH SIDEBAR (CÀI 1 LẦN DÙNG MÃI MÃI) ---
-st.sidebar.header("⚙️ Cấu Hình Mẫu Cố Định")
-api_key = st.sidebar.text_input("Nhập Gemini API Key:", type="password", help="Lấy API Key miễn phí từ Google AI Studio")
+# --- CẤU HÌNH SIDEBAR ---
+st.sidebar.title("⚙️ Cấu hình mẫu Cố Định")
+api_key = st.sidebar.text_input("Mã API Gemini:", type="password", help="Lấy API Key miễn phí từ Google AI Studio")
 
-prompt_template = st.sidebar.text_area(
-    "1. Khung Prompt Mẫu Tạo Ảnh AI:",
-    value="Full-body fashion shoot of a professional model wearing [PRODUCT_DETAILS], street style, 8k resolution, photorealistic, cinematic lighting, TikTok fashion lookbook, 9:16 aspect ratio.",
+prompt_analysis = st.sidebar.text_area(
+    "1. Khung Nhắc Mẫu Tạo Ảnh AI:",
+    value="Bộ ảnh thời trang toàn thân của một người mẫu chuyên nghiệp mặc [CHI TIẾT SẢN PHẨM], phong cách đường phố, ánh sáng tự nhiên, tỉ lệ 9:16 chất lượng 8k sắc nét.",
     height=120
 )
 
-script_template = st.sidebar.text_area(
+prompt_script = st.sidebar.text_area(
     "2. Mẫu Kịch Bản Lồng Tiếng TikTok:",
-    value="Mẫu áo hot trend mới nhất tuần này! Chất vải mềm mịn, mặc cực nịnh dáng. Mấy bạn bấm ngay vào giỏ hàng góc trái để chốt đơn nhé!",
-    height=80
+    value="Áo đẹp nịnh dáng. Mấy bạn bấm ngay vào giỏ hàng góc trái để chốt đơn nhé!",
+    height=100
 )
 
-st.sidebar.success("✅ Mẫu đã được lưu tự động!")
+st.sidebar.success("Mẫu đã được lưu tự động!")
 
-# --- GIAO DIỆN CHÍNH SỬ DỤNG HÀNG NGÀY ---
-st.subheader("📸 Tải ảnh sản phẩm lên đây")
-uploaded_file = st.file_uploader("Kéo thả ảnh áo/quần (JPG, PNG)...", type=["jpg", "jpeg", "png"])
+# --- TẢI ẢNH VÀ XỬ LÝ ---
+uploaded_file = st.file_uploader("Tải ảnh sản phẩm (Áo/Quần/Váy)...", type=["jpg", "jpeg", "png"])
 
-if uploaded_file:
+if uploaded_file and api_key:
     image = Image.open(uploaded_file)
-    st.image(image, caption="Ảnh áo gốc của mày", width=250)
+    st.image(image, caption="Ảnh áo gốc", use_column_width=True)
     
-    if st.button("🚀 XUẤT VIDEO TỰ ĐỘNG", type="primary"):
-        if not api_key:
-            st.error("⚠️ Mày chưa nhập Gemini API Key ở thanh bên góc trái kìa!")
-        else:
-            with st.status("⏳ Hệ thống đang tự động xử lý từ A - Z...", expanded=True) as status:
+    if st.button("🚀 XUẤT VIDEO TỰ ĐỘNG"):
+        try:
+            genai.configure(api_key=api_key)
+            # Sử dụng model gemini-1.5-flash mới nhất
+            model = genai.GenerativeModel('gemini-1.5-flash')
+            
+            with st.spinner("⏳ Hệ thống đang tự động xử lý từ A - Z..."):
                 st.write("1️⃣ Gemini đang phân tích chi tiết thiết kế cái áo...")
-                genai.configure(api_key=api_key)
-                model = genai.GenerativeModel("gemini-1.5-flash")
+                response = model.generate_content([image, f"Phân tích chiếc áo trong ảnh và điền chi tiết vào mẫu sau: {prompt_analysis}"])
                 
-                # Phân tích áo
-                prompt_analysis = "Phân tích chất liệu, màu sắc, kiểu dáng chiếc áo trong ảnh ngắn gọn bằng tiếng Anh:"
-                analysis_res = model.generate_content([image, prompt_analysis])
-                clothing_info = analysis_res.text.strip()
-                
-                # Ghép vào prompt mẫu
-                final_prompt = prompt_template.replace("[PRODUCT_DETAILS]", clothing_info)
-                st.write("2️⃣ Đang ghép vào Prompt mẫu sinh ảnh AI...")
-                st.code(final_prompt, language="text")
-                
-                st.write("3️⃣ Đang tạo giọng đọc thuyết minh & Render video chuẩn 9:16...")
-                
-                status.update(label="✅ Đã hoàn tất video!", state="complete")
-            
-            st.balloons()
-            st.success("🎉 Video TikTok của mày đã hoàn thành!")
-            
-            # Nút tải về
-            st.download_button(
-                label="📥 TẢI VIDEO (.MP4) VỀ MÁY",
-                data=uploaded_file.getvalue(), # File demo
-                file_name="tiktok_affiliate_fashion.mp4",
-                mime="video/mp4"
-            )
+                st.success("✅ Đã xử lý xong!")
+                st.write(response.text)
+        except Exception as e:
+            st.error(f"Có lỗi xảy ra: {e}")
+elif not api_key:
+    st.warning("⚠️ Vui lòng nhập Gemini API Key ở thanh bên trái trước khi bắt đầu!")
