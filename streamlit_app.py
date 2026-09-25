@@ -9,7 +9,7 @@ st.write("Tự động tạo ảnh Model AI & Build Video TikTok từ ảnh gố
 
 # --- CẤU HÌNH SIDEBAR ---
 st.sidebar.title("⚙️ Cấu hình mẫu Cố Định")
-raw_api_key = st.sidebar.text_input("Mã API Gemini:", type="password", help="Lấy API Key từ Google AI Studio (bắt đầu bằng AIzaSy...)")
+raw_api_key = st.sidebar.text_input("Mã API Gemini:", type="password", help="Lấy API Key mới từ Google AI Studio (bắt đầu bằng AIzaSy...)")
 api_key = raw_api_key.strip() if raw_api_key else ""
 
 prompt_analysis = st.sidebar.text_area(
@@ -36,15 +36,12 @@ if uploaded_file and api_key:
     if st.button("🚀 XUẤT VIDEO TỰ ĐỘNG"):
         try:
             genai.configure(api_key=api_key)
+            model = genai.GenerativeModel('gemini-1.5-flash')
             
-            # Khai báo chuẩn tên model theo thông báo mới nhất từ Google
-            model = genai.GenerativeModel('gemini-3.8-flash')
-            
-            with st.spinner("⚡ Đang tối ưu ảnh & gửi AI xử lý..."):
+            with st.spinner("⚡ Đang kết nối Gemini AI..."):
                 optimized_img = image.copy()
                 optimized_img.thumbnail((1024, 1024))
                 
-                st.write("1️⃣ Gemini đang phân tích chi tiết thiết kế...")
                 response = model.generate_content([
                     optimized_img, 
                     f"Phân tích chiếc áo trong ảnh và điền chi tiết vào mẫu sau: {prompt_analysis}"
@@ -53,6 +50,9 @@ if uploaded_file and api_key:
                 st.success("✅ Đã xử lý xong!")
                 st.write(response.text)
         except Exception as e:
-            st.error(f"Có lỗi xảy ra: {e}")
+            if "403" in str(e):
+                st.error("❌ Lỗi 403: API Key này bị Google từ chối/khóa. Vui lòng lấy API Key từ một tài khoản Gmail khác!")
+            else:
+                st.error(f"Lỗi hệ thống: {e}")
 elif not api_key:
-    st.warning("⚠️ Vui lòng nhập Gemini API Key ở thanh bên trái!")
+    st.warning("⚠️ Vui lòng nhập Gemini API Key mới ở thanh bên trái!")
