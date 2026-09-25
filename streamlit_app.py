@@ -35,13 +35,16 @@ if uploaded_file and api_key:
     if st.button("🚀 XUẤT VIDEO TỰ ĐỘNG"):
         try:
             genai.configure(api_key=api_key)
-            # Cập nhật tên model mới nhất gemini-3.8-flash
             model = genai.GenerativeModel('gemini-3.8-flash')
             
-            with st.spinner("⏳ Hệ thống đang tự động xử lý..."):
-                st.write("1️⃣ Gemini đang phân tích chi tiết thiết kế cái áo...")
+            with st.spinner("⚡ Đang tối ưu ảnh & gửi AI xử lý siêu tốc..."):
+                # TỐI ƯU TỐC ĐỘ: Thu nhỏ ảnh về tối đa 1024px để gửi cực nhanh
+                optimized_img = image.copy()
+                optimized_img.thumbnail((1024, 1024))
+                
+                st.write("1️⃣ Gemini đang phân tích chi tiết thiết kế...")
                 response = model.generate_content([
-                    image, 
+                    optimized_img, 
                     f"Phân tích chiếc áo trong ảnh và điền chi tiết vào mẫu sau: {prompt_analysis}"
                 ])
                 
