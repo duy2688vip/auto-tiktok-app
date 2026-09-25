@@ -37,28 +37,14 @@ if uploaded_file and api_key:
         try:
             genai.configure(api_key=api_key)
             
-            # TỰ ĐỘNG TÌM MODEL ĐANG HOẠT ĐỘNG
-            available_models = [
-                m.name for m in genai.list_models() 
-                if 'generateContent' in m.supported_generation_methods
-            ]
-            
-            selected_model = None
-            for m_name in available_models:
-                if 'flash' in m_name.lower():
-                    selected_model = m_name
-                    break
-            
-            if not selected_model and available_models:
-                selected_model = available_models[0]
-
-            model = genai.GenerativeModel(selected_model)
+            # Khai báo chuẩn tên model theo thông báo mới nhất từ Google
+            model = genai.GenerativeModel('gemini-3.8-flash')
             
             with st.spinner("⚡ Đang tối ưu ảnh & gửi AI xử lý..."):
                 optimized_img = image.copy()
                 optimized_img.thumbnail((1024, 1024))
                 
-                st.write(f"1️⃣ Đang phân tích bằng model: `{selected_model}`...")
+                st.write("1️⃣ Gemini đang phân tích chi tiết thiết kế...")
                 response = model.generate_content([
                     optimized_img, 
                     f"Phân tích chiếc áo trong ảnh và điền chi tiết vào mẫu sau: {prompt_analysis}"
