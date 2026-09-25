@@ -1,12 +1,8 @@
 [project]
-name = "blank-app-template"
+name = "auto-tiktok-app"
 version = "0.1.0"
-description = "A simple Streamlit app template."
-readme = "README.md"
-requires-python = ">=3.14"
 dependencies = [
-    "streamlit>=1.61.1",
+    "streamlit",
+    "google-generativeai",
+    "pillow"
 ]
-
-[tool.uv]
-package = false
