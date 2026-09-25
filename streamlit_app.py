@@ -35,32 +35,18 @@ if uploaded_file and api_key:
     if st.button("🚀 XUẤT VIDEO TỰ ĐỘNG"):
         try:
             genai.configure(api_key=api_key)
+            # Cập nhật tên model mới nhất gemini-3.8-flash
+            model = genai.GenerativeModel('gemini-3.8-flash')
             
-            with st.spinner("⏳ Hệ thống đang tự động dò tìm mô hình AI phù hợp & xử lý..."):
-                # Tự động lấy danh sách các model khả dụng trên API Key này
-                available_models = [
-                    m.name for m in genai.list_models() 
-                    if 'generateContent' in m.supported_generation_methods
-                ]
+            with st.spinner("⏳ Hệ thống đang tự động xử lý..."):
+                st.write("1️⃣ Gemini đang phân tích chi tiết thiết kế cái áo...")
+                response = model.generate_content([
+                    image, 
+                    f"Phân tích chiếc áo trong ảnh và điền chi tiết vào mẫu sau: {prompt_analysis}"
+                ])
                 
-                if not available_models:
-                    st.error("API Key của bạn chưa kích hoạt quyền tạo nội dung. Vui lòng kiểm tra lại API Key.")
-                else:
-                    # Ưu tiên lấy dòng flash, nếu không tìm thấy thì lấy model khả dụng đầu tiên
-                    chosen_model = next((m for m in available_models if 'flash' in m), available_models[0])
-                    
-                    model = genai.GenerativeModel(chosen_model)
-                    st.info(f"Đã kết nối thành công với mô hình: {chosen_model.replace('models/', '')}")
-                    
-                    st.write("1️⃣ Gemini đang phân tích chi tiết thiết kế cái áo...")
-                    response = model.generate_content([
-                        image, 
-                        f"Phân tích chiếc áo trong ảnh và điền chi tiết vào mẫu sau: {prompt_analysis}"
-                    ])
-                    
-                    st.success("✅ Đã xử lý xong!")
-                    st.write(response.text)
-                    
+                st.success("✅ Đã xử lý xong!")
+                st.write(response.text)
         except Exception as e:
             st.error(f"Có lỗi xảy ra: {e}")
 elif not api_key:
